@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List
 from langchain_groq import ChatGroq
@@ -9,24 +11,28 @@ from langchain_core.prompts import ChatPromptTemplate
 import os
 from dotenv import load_dotenv
 
-# Load env
+# --------------------
+# Load Environment
+# --------------------
 load_dotenv()
 api_key = os.getenv("API_KEY")
 
 app = FastAPI(title="Digital Marketing Assistant API")
 
-# Allow frontend (CORS)
+# Allow CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all origins (for local use, restrict in prod)
+    allow_origins=["*"],  # In production, set to your Railway domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Request/Response schemas
+# --------------------
+# Schemas
+# --------------------
 class Message(BaseModel):
-    role: str  # "human" or "ai"
+    role: str
     content: str
 
 class ChatRequest(BaseModel):
@@ -36,7 +42,9 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     response: str
 
-# LLM function
+# --------------------
+# LLM Response
+# --------------------
 def get_llm_response(query: str, chat_history: List[Message]) -> str:
     template = """
     You are a digital marketing assistant. Provide helpful advice and strategies for the user's digital marketing needs, considering the history of the conversation:
@@ -67,11 +75,20 @@ def get_llm_response(query: str, chat_history: List[Message]) -> str:
     })
     return ''.join(list(response_gen))
 
+# --------------------
+# API Routes
+# --------------------
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     response = get_llm_response(request.query, request.chat_history)
     return ChatResponse(response=response)
 
+# --------------------
+# Serve Frontend
+# --------------------
+# Serve static files (optional: css/js/images)
+app.mount("/static", StaticFiles(directory="."), name="static")
+
 @app.get("/")
 async def root():
-    return {"message": "Digital Marketing Assistant API is running"}
+    return FileResponse("index.html")

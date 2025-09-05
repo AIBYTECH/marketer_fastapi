@@ -78,6 +78,8 @@
   </div>
 
   <script>
+    const apiUrl = window.location.origin; // works for local + Railway
+
     let chatHistory = [
       { role: "ai", content: "Hello, I am your digital marketing assistant. How can I assist you today?" }
     ];
@@ -98,25 +100,26 @@
       const input = document.getElementById("user-input");
       const text = input.value.trim();
       if (!text) return;
-      
-      // Add human message
+
       chatHistory.push({ role: "human", content: text });
       renderMessages();
       input.value = "";
 
-      // Call backend
-      const response = await fetch("https://web-production-2cd4b.up.railway.app/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: text, chat_history: chatHistory })
-      });
-
-      const data = await response.json();
-      chatHistory.push({ role: "ai", content: data.response });
-      renderMessages();
+      try {
+        const response = await fetch(`${apiUrl}/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: text, chat_history: chatHistory })
+        });
+        const data = await response.json();
+        chatHistory.push({ role: "ai", content: data.response });
+        renderMessages();
+      } catch (err) {
+        chatHistory.push({ role: "ai", content: "⚠️ Error: Could not connect to backend." });
+        renderMessages();
+      }
     }
 
-    // Render initial message
     renderMessages();
   </script>
 </body>
