@@ -81,9 +81,9 @@ def get_llm_response(query: str, chat_history: List[dict]) -> str:
 @app.get("/")
 async def read_root():
     """Serve the main HTML page"""
-    import os
-    static_path = os.path.join(os.path.dirname(__file__), "static", "index.html")
-    return FileResponse(static_path)
+    # import os
+    # static_path = os.path.join(os.path.dirname(__file__), "static", "index.html")
+    # return FileResponse(static_path)
 
 @app.get("/health")
 async def health_check():
