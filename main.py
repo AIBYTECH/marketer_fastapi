@@ -81,7 +81,14 @@ def get_llm_response(query: str, chat_history: List[dict]) -> str:
 @app.get("/")
 async def read_root():
     """Serve the main HTML page"""
-    return FileResponse("static/index.html")
+    import os
+    static_path = os.path.join(os.path.dirname(__file__), "static", "index.html")
+    return FileResponse(static_path)
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Railway"""
+    return {"status": "healthy", "message": "Marketer API is running"}
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
@@ -160,4 +167,5 @@ async def new_chat():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, port=8000)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
