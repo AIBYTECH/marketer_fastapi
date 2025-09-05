@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketer - Digital Marketing Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Marketer</h2>
+                <p>Digital Marketing Assistant</p>
+            </div>
+            
+            <div class="sidebar-actions">
+                <button id="newChatBtn" class="new-chat-btn">
+                    <i class="fas fa-plus"></i> New Chat
+                </button>
+            </div>
+            
+            <div class="chat-history">
+                <h3>Chat History</h3>
+                <div id="chatList" class="chat-list">
+                    <!-- Chat history will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="main-content">
+            <div class="chat-header">
+                <h1>Marketer: Your Digital Marketing Assistant</h1>
+            </div>
+            
+            <div class="chat-container">
+                <div id="chatMessages" class="chat-messages">
+                    <div class="message assistant-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <p>Hello, I am your digital marketing assistant. How can I assist you today?</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="messageInput" placeholder="Type your question or request here..." autocomplete="off">
+                        <button id="sendBtn" class="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+        <div class="loading-spinner"></div>
+        <span>AI is thinking...</span>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
