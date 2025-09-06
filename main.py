@@ -11,6 +11,7 @@ from langchain_groq import ChatGroq
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+from fastapi.templating import Jinja2Templates
 
 load_dotenv()
 
@@ -88,13 +89,12 @@ def get_llm_response_sync(query: str, chat_history: list | None):
     return str(result)
 
 
+
+templates = Jinja2Templates(directory="templates")
+
 @app.get("/", response_class=HTMLResponse)
-async def index():
-    """Serve the single-page frontend."""
-    html_path = os.path.join("templates", "index.html")
-    if not os.path.exists(html_path):
-        return HTMLResponse(content="<h1>Index not found</h1>", status_code=404)
-    return FileResponse(html_path)
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.post("/api/chat")
