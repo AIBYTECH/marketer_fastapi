@@ -75,7 +75,7 @@ def get_llm_response_sync(query: str, chat_history: list | None):
 
     # The Streamlit version used chain.stream (generator). Here we call it as a full run.
     try:
-        result = chain({
+        result = chain.invoke({
             "chat_history": chat_history or [],
             "user_question": query
         })
@@ -93,7 +93,7 @@ def get_llm_response_sync(query: str, chat_history: list | None):
 async def read_root():
     """Serve the main HTML page"""
     import os
-    static_path = os.path.join(os.path.dirname(__file__), "static", "index.html")
+    static_path = os.path.join(os.path.dirname(__file__), "templates", "index.html")
     return FileResponse(static_path)
 
 
@@ -118,4 +118,4 @@ async def chat_endpoint(req: ChatRequest):
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, port=port)
