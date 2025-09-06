@@ -6,11 +6,9 @@ from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
 
-# Import LLM-related libraries (same as your streamlit app)
-from langchain_groq import ChatGroq
-from langchain_core.messages import AIMessage, HumanMessage
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
+# Import LLM-related libraries - using Groq directly instead of LangChain
+import requests
+import json
 
 load_dotenv()
 
@@ -54,38 +52,56 @@ def build_prompt(user_question: str, chat_history: list | None):
 
 
 def get_llm_response_sync(query: str, chat_history: list | None):
-    """Call the LLM (synchronously) and return a string response.
-    This mirrors your Streamlit code but returns full text.
-    """
+    """Call the Groq API directly and return a string response."""
     if not API_KEY:
         raise RuntimeError("API_KEY is not configured on the server.")
 
-    # Create prompt template
-    template = """
-    You are a digital marketing assistant. Provide helpful advice and strategies for the user's digital marketing needs, considering the history of the conversation:
+    # Prepare the chat history for the API
+    messages = []
     
-    Chat history: {chat_history}
+    # Add chat history if provided
+    if chat_history:
+        for msg in chat_history:
+            if isinstance(msg, dict):
+                role = msg.get("role", "user")
+                content = msg.get("content", "")
+                if role in ["user", "assistant"]:
+                    messages.append({"role": role, "content": content})
     
-    User question: {user_question}
-    """
+    # Add the current user query
+    messages.append({"role": "user", "content": query})
+    
+    # Add system message
+    system_message = "You are a digital marketing assistant. Provide helpful advice and strategies for the user's digital marketing needs."
+    messages.insert(0, {"role": "system", "content": system_message})
 
-    prompt = ChatPromptTemplate.from_template(template)
-    llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=API_KEY, max_tokens=500)
-    chain = prompt | llm | StrOutputParser()
+    # Call Groq API
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    data = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": messages,
+        "max_tokens": 500,
+        "temperature": 0.7
+    }
 
-    # The Streamlit version used chain.stream (generator). Here we call it as a full run.
     try:
-        result = chain.invoke({
-            "chat_history": chat_history or [],
-            "user_question": query
-        })
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        
+        result = response.json()
+        return result["choices"][0]["message"]["content"]
+        
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API request failed: {e}")
+    except (KeyError, IndexError) as e:
+        raise RuntimeError(f"Unexpected API response format: {e}")
     except Exception as e:
-        raise
-
-    # If the result is a generator/iterator, join it
-    if hasattr(result, "__iter__") and not isinstance(result, (str, bytes)):
-        return "".join(list(result))
-    return str(result)
+        raise RuntimeError(f"Unexpected error: {e}")
 
 
 
