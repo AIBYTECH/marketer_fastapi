@@ -1,8 +1,7 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-dotenv==1.0.0
-langchain-groq==0.0.1
-langchain-core==0.1.0
-pydantic==1.10.13
-python-multipart==0.0.6
-typing-extensions==4.8.0
+fastapi
+uvicorn[standard]
+python-dotenv
+langchain-groq
+langchain-core
+aiofiles
+pydantic
