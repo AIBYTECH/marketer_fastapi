@@ -5,3 +5,4 @@ langchain-groq
 langchain-core
 aiofiles
 pydantic
+jinja2
